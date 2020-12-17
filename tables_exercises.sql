@@ -3,7 +3,7 @@
 # Which table(s) do you think contain a numeric type column? employees, current_dept_emp, dept_emp, dept_emp_latest_date, dept_manager, employees_with_departments, salaries, titles.
 # Which table(s) do you think contain a string type column? employees, current_dept_emp, departments, dept_emp, dept_manager, employees_with_departments, titles.
 # Which table(s) do you think contain a date type column? employees, current_dept_emp, dept_emp, dept_emp_latest_date, dept_manager, salaries, titles.
-# What is the relationship between the employees and the departments tables?
+# What is the relationship between the employees and the departments tables? They both provide a primary key/identifier for the empl/dept &  their name.
 # Show the SQL that created the dept_manager table. SHOW CREATE TABLE dept_manager;
 
 # SQL code
