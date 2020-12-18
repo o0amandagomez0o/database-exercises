@@ -127,7 +127,7 @@ WHERE
 	or first_name =  'Maya')
 ORDER BY last_name, first_name;
 #What was the first and last name in the first row of the results? Irena Acton 
-#What was the first and last name of the last person in the table? May Zyda
+#What was the first and last name of the last person in the table? Maya Zyda
 
 --5
 select *
