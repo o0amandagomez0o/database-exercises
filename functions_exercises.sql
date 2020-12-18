@@ -35,7 +35,11 @@ SELECT MAX(salary) AS 'Largest Salary'
 FROM salaries;
 
 -- 6
-SELECT  concat(substr(LOWER(first_name),1,1), substr(LOWER(last_name),1,4), "_", substr(birth_date,6,2), substr(birth_date,3,2)) AS username,
+SELECT  concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) AS username,
 		first_name, last_name, birth_date
 FROM employees;
 
