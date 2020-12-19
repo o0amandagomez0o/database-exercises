@@ -62,12 +62,37 @@ WHERE
 GROUP BY last_name;
 
 -- 7 
-select first_name, count(*) 
+select first_name, gender, count(*) 
 from employees
 WHERE first_name in ('Irena', 'Vidya', 'Maya')
-GROUP BY first_name, gender;
+GROUP BY first_name, gender
+ORDER BY gender DESC, first_name;
+
+select concat (first_name, "  ", gender) AS 'Name and Gender', count(*) 
+from employees
+WHERE first_name in ('Irena', 'Vidya', 'Maya')
+GROUP BY first_name, gender
+ORDER BY gender DESC, first_name;
 
 -- 8 
+SELECT  concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) AS username,
+		count(*)
+FROM employees
+GROUP BY username
+ORDER BY count(*) DESC;
 
+
+# Yes, there are duplicates. 
+
+SELECT  COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)))
+FROM employees;
 
 
