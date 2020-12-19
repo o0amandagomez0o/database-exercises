@@ -95,4 +95,20 @@ SELECT  COUNT(DISTINCT concat(substr(LOWER(first_name),1,1),
 		substr(birth_date,3,2)))
 FROM employees;
 
+SELECT  COUNT(IS [NOT] DISTINCT concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)))
+FROM employees;
 
+SELECT  concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) AS username,
+		count(*)
+FROM employees
+WHERE username = username
+GROUP BY username
+ORDER BY count(*) DESC;
