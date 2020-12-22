@@ -1,33 +1,5 @@
 use employees;
 
-select dept_n, count(*)
-from dept_emp
-GROUP BY dept_no;
-
-select distinct dept_no
-from dept_emp;
-
-select dept_no, count(*)
-from dept_emp
-group by dept_no;
-
-select dept_no, count(*)
-from dept_emp
-where to_date > curdate()
-group by dept_no;
-
-select hire_date, count(*)
-from employees
-where first_name = 'Georgi'
-group by hire_date
-order by count(*) DESC;
-
-
-
-
-
-
-
 -- 2
 select DISTINCT title
 from titles;
@@ -75,12 +47,14 @@ GROUP BY first_name, gender
 ORDER BY gender DESC, first_name;
 
 -- 8 
-SELECT  concat(substr(LOWER(first_name),1,1), 
-		substr(LOWER(last_name),1,4), 
-		"_", 
-		substr(birth_date,6,2), 
-		substr(birth_date,3,2)) AS username,
-		count(*)
+SELECT concat(
+					substr(LOWER(first_name),1,1), 
+					substr(LOWER(last_name),1,4), 
+					"_", 
+					substr(birth_date,6,2), 
+					substr(birth_date,3,2)
+					) 
+			AS username,count(*)
 FROM employees
 GROUP BY username
 ORDER BY count(*) DESC;
@@ -88,14 +62,14 @@ ORDER BY count(*) DESC;
 
 # Yes, there are duplicates: 13251. 
 
-SELECT  COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
+SELECT COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
 		substr(LOWER(last_name),1,4), 
 		"_", 
 		substr(birth_date,6,2), 
 		substr(birth_date,3,2)))
 FROM employees;
 
-SELECT  COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
+SELECT COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
 		substr(LOWER(last_name),1,4), 
 		"_", 
 		substr(birth_date,6,2), 
@@ -144,3 +118,79 @@ FROM employees
 GROUP BY username
 ORDER BY count(*) DESC
 LIMIT 25 OFFSET 13250;
+
+SELECT  concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) AS username,
+		count(*)
+FROM employees
+GROUP BY username
+HAVING COUNT(username) > 1;
+
+SELECT  COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)))
+FROM employees
+HAVING (count(*) > 1);
+
+SELECT COUNT(concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) AS username)
+FROM employees
+HAVING COUNT(username) > 1;
+#WHERE count(*) IN (6, 5, 4, 3, 2) 
+#GROUP BY username
+#ORDER BY Number DESC;
+
+SELECT COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)))
+FROM employees;
+
+SELECT COUNT(*) AS usernames
+FROM (SELECT DISTINCT concat(substr(LOWER(first_name),1,1), 
+		substr(LOWER(last_name),1,4), 
+		"_", 
+		substr(birth_date,6,2), 
+		substr(birth_date,3,2)) FROM employees)
+WHERE usernames in (6, 5, 4, 3, 2);
+
+SELECT COUNT(DISTINCT concat(
+										substr(LOWER(first_name),1,1), 
+										substr(LOWER(last_name),1,4), 
+										"_", 
+										substr(birth_date,6,2), 
+										substr(birth_date,3,2)
+										)
+					) AS username, count(*)
+FROM employees
+HAVING COUNT(username) != 1;
+
+
+SELECT COUNT(logins.numbers) AS 'Number of Duplicate Usernames'
+FROM(
+
+		SELECT concat(
+							substr(LOWER(first_name),1,1), 
+							substr(LOWER(last_name),1,4), 
+							"_", 
+							substr(birth_date,6,2), 
+							substr(birth_date,3,2)
+						  ) 
+					AS username, count(*) AS numbers
+		FROM employees
+		GROUP BY username
+		
+    ) AS logins
+WHERE logins.numbers != 1;
+
+
+
