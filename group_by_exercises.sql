@@ -60,7 +60,43 @@ GROUP BY username
 ORDER BY count(*) DESC;
 
 
-# Yes, there are duplicates: 13251. 
+-- Yes, there are duplicates: 13251. 
+
+/*This is a clean way of getting 13251*/
+SELECT concat(
+					substr(LOWER(first_name),1,1), 
+					substr(LOWER(last_name),1,4), 
+					"_", 
+					substr(birth_date,6,2), 
+					substr(birth_date,3,2)
+					) 
+			AS username, count(*) AS number_of_duplicates
+FROM employees
+GROUP BY username
+HAVING number_of_duplicates>1;
+
+
+/* This will sum the count of duplicates.*/
+SELECT 
+	COUNT(t.number_of_duplicates) AS unique_duplicate_usernames,
+	SUM(t.number_of_duplicates) AS number_of_duplicate_usernames
+FROM (SELECT
+
+			concat(
+					substr(LOWER(first_name),1,1), 
+					substr(LOWER(last_name),1,4), 
+					"_", 
+					substr(birth_date,6,2), 
+					substr(birth_date,3,2)
+					) AS username, 
+			count(*) AS number_of_duplicates
+		FROM employees
+		GROUP BY username
+		HAVING number_of_duplicates>1) AS t;
+
+
+
+
 
 SELECT COUNT(DISTINCT concat(substr(LOWER(first_name),1,1), 
 		substr(LOWER(last_name),1,4), 
