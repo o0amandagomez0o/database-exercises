@@ -27,7 +27,7 @@ SELECT *
 FROM users
 RIGHT JOIN roles ON users.role_id = roles.id;
 
--- #3 lists all possible roles and the number of USERS that have that role.
+-- #3 lists all possible ROLES and the number of USERS that have that role.
 SELECT roles.name, count(users.name)
 FROM users
 RIGHT JOIN roles ON users.role_id = roles.id
@@ -75,7 +75,7 @@ AND e.gender = 'F'
 ORDER BY d.dept_name;
 
 -- 4: Find the current titles of employees currently working in the Customer Service department.
-SELECT t.title AS 'Title', count(*)
+SELECT t.title AS 'Title', count(de.emp_no) AS 'Count'
 FROM titles AS t
 	JOIN dept_emp as de
 		ON de.emp_no = t.emp_no
@@ -99,7 +99,7 @@ AND s.to_date > curdate()
 ORDER BY d.dept_name;
 
 -- 6: Find the number of current employees in each department.
-SELECT d.dept_no, d.dept_name, COUNT(*)
+SELECT d.dept_no, d.dept_name, COUNT(emp_no) AS num_employees
 FROM dept_emp AS de
 	JOIN departments AS d
 		ON de.dept_no = d.dept_no
@@ -108,14 +108,15 @@ GROUP BY d.dept_no
 ORDER BY d.dept_no;
 
 -- 7: Which department has the highest average salary? Hint: Use current not historic information.
+/*
 SELECT dept_no, avg(salary)
 from salaries
 join dept_emp using (emp_no)
 group by dept_no
 order by avg(salary) desc;
+*/
 
-
-SELECT d.dept_name, avg(s.salary) AS 'average_salary'
+SELECT d.dept_name, ROUND(avg(s.salary), 2) AS 'average_salary'
 FROM departments AS d
 	JOIN dept_emp AS de
 		ON d.dept_no = de.dept_no
@@ -154,8 +155,13 @@ AND s.to_date > curdate()
 ORDER BY s.salary DESC
 LIMIT 1;
 
+
+
+
 -- 10:Bonus Find the names of all current employees, their department name, and their current manager's name.
-SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', ewd.dept_name AS 'Department Name', CONCAT(ewd.first_name, ' ', ewd.last_name) AS 'Manager Name'
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', 
+		ewd.dept_name AS 'Department Name', 
+		CONCAT(ewd.first_name, ' ', ewd.last_name) AS 'Manager Name'
 		
 FROM dept_emp AS de
 	JOIN dept_manager AS dm
@@ -167,7 +173,69 @@ FROM dept_emp AS de
 
 WHERE de.to_date = '9999-01-01'
 AND dm.to_date = '9999-01-01'
-ORDER BY ewd.dept_name, e.last_nam, e.first_name;  
+ORDER BY ewd.dept_name, e.last_name, e.first_name;  
+
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', 
+		ewd.dept_name AS 'Department Name', 
+		CONCAT(ewd.first_name, ' ', ewd.last_name) AS 'Manager Name'
+		
+FROM dept_emp AS de
+	JOIN dept_manager AS dm
+		ON de.dept_no = dm.dept_no
+	JOIN employees_with_departments AS ewd
+		ON dm.emp_no = ewd.emp_no
+	JOIN employees AS e
+		ON e.emp_no = de.emp_no
+
+WHERE de.to_date > CURDATE()
+AND dm.to_date > CURDATE()
+ORDER BY ewd.dept_name, e.last_name, e.first_name;  
+
+/*
+SELECT *	
+FROM employees AS e
+	JOIN dept_emp AS de
+		ON de.emp_no = e.emp_no
+	JOIN dept_manager AS dm
+		ON dm.dept_no = de.dept_no
+	JOIN employees_with_departments AS ewd
+		ON ewd.emp_no = dm.emp_no; 
+*/
+
+
+-- Faith's stab at #10
+SELECT
+	CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
+	d.dept_name AS 'Department Name',
+	m.managers AS 'Manager Name'
+FROM employees AS e
+JOIN dept_emp AS de ON de.emp_no = e.emp_no
+	AND de.to_date > CURDATE()
+JOIN departments AS d ON de.dept_no = d.dept_no 
+JOIN (SELECT
+		 	dm.dept_no,
+		 	CONCAT(e.first_name, ' ', e.last_name) AS managers
+	 	FROM employees AS e
+	 	JOIN dept_manager AS dm 
+	 		ON e.emp_no = dm.emp_no
+		AND to_date > CURDATE()
+	  ) AS m 
+	  	  ON m.dept_no = d.dept_no
+ORDER BY d.dept_name;  
+
+-- Ryan's take on #10
+SELECT CONCAT(employees.first_name, ' ', employees.last_name) AS 'employee_name', 
+		dept_name, 
+		dept_manager.emp_no,
+		CONCAT(managers.first_name, ' ', managers.last_name) AS 'manager_name'
+FROM employees
+JOIN dept_emp USING(emp_no)
+JOIN departments USING(dept_no)
+JOIN dept_manager USING(dept_no)
+JOIN employees AS managers
+	ON managers.emp_no = dept_manager.emp_no
+WHERE dept_manager.to_date > curdate()
+AND dept_emp.to_date > curdate();
 
 -- 11: Bonus Who is the highest paid employee within each department.
 SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', ewd.dept_name AS 'Department Name', s.salary
@@ -184,8 +252,32 @@ FROM dept_emp AS de
 
 WHERE de.to_date = '9999-01-01'
 AND dm.to_date = '9999-01-01'
-AND s.to_date > NOW()
+AND s.to_date > NOW();
 #AND e.emp_no NOT IN (111939, 110567, 110114, 110228, 110039, 110420, 110854, 111534, 111133)
+
+#ORDER BY ewd.dept_name, s.salary DESC;
+
+
+
+
+SELECT 
+		CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name', 
+		ewd.dept_name AS 'Department Name', 
+		s.salary
+		
+FROM dept_emp AS de
+	JOIN employees_with_departments AS ewd
+		ON de.dept_no = ewd.dept_no
+		AND to_date > NOW()
+	JOIN employees AS e
+		ON e.emp_no = de.emp_no
+	JOIN salaries AS s 
+		ON s.emp_no  = e.emp_no
+		AND to_date > NOW()
+
+
+#AND e.emp_no NOT IN (111939, 110567, 110114, 110228, 110039, 110420, 110854, 111534, 111133)
+GROUP BY ewd.dept_name
 ORDER BY ewd.dept_name, s.salary DESC;
 
 
@@ -193,4 +285,32 @@ ORDER BY ewd.dept_name, s.salary DESC;
 
 
 
+-- Faith's take on #11
+SELECT 
+    CONCAT(e.first_name, ' ', e.last_name) AS 'Employee Name',
+    d.dept_name AS 'Department Name',
+    CONCAT(managers.first_name, ' ', managers.last_name) AS 'Manager_name'
+FROM dept_emp AS de
+JOIN employees AS e USING(emp_no)
+JOIN departments AS d ON d.dept_no = de.dept_no
+-- Get the current department managers, join on dept_no.
+JOIN dept_manager AS dm ON dm.dept_no = d.dept_no 
+    AND dm.to_date > CURDATE()
+-- Join employees again as managers to get manager names.
+JOIN employees AS managers ON managers.emp_no = dm.emp_no
+WHERE de.to_date > CURDATE()
+ORDER BY d.dept_name;
+
+
+
+-- Ryan's input on #11
+SELECT max(salary)
+FROM employees AS e
+JOIN salaries AS s
+	ON s.emp_no = e.emp_no
+JOIN dept_emp AS de
+	on de.emp_no = de.emp_no
+JOIN departments AS d
+	on d.dept_no = de.dept_no
+GROUP BY dept_name;
 
