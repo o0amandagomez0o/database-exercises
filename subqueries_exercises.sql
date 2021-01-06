@@ -2,6 +2,11 @@
 
 -- 1. Find all the current employees with the same hire date as employee 101010 using a sub-query.
 
+-- create subquery
+SELECT hire_date
+FROM employees
+WHERE emp_no = 101010;
+
 -- confirm same hire_date 
 SELECT *
 FROM employees AS e
@@ -87,7 +92,7 @@ AND de.to_date > NOW()
 GROUP BY title;
 
 -- 3. How many people in the employees table are no longer working for the company? Give the answer in a comment in your code.
-/*59900*/
+/*59900 former employees*/
 SELECT *
 FROM employees AS e
 
@@ -97,7 +102,7 @@ WHERE e.emp_no NOT IN(
 						WHERE de.to_date > NOW()
 						);
 
--- find all former emps ALTHOUGH this does not incl Managers
+-- find all former emps 
 SELECT *
 FROM dept_emp AS de
 WHERE de.to_date < NOW();
@@ -118,20 +123,8 @@ FROM dept_emp AS de
 JOIN dept_manager AS dm
 	ON dm.dept_no = de.dept_no
 WHERE de.to_date < NOW()
-AND dm.to_date < NOW()
-						;										
---
-SELECT *
-FROM employees AS e
+AND dm.to_date < NOW();								
 
-WHERE e.emp_no IN(
-						SELECT *
-						FROM dept_emp AS de
-						JOIN dept_manager AS dm
-							ON dm.dept_no = de.dept_no
-						WHERE de.to_date < NOW()
-						AND dm.to_date < NOW()
-						);
 
 -- create a list of currently paid emps
 SELECT emp_no
@@ -205,7 +198,10 @@ AND gender = 'F';
 
 -- 5. Find all the employees who currently have a higher salary than the companies overall, historical average salary.
 
--- find overall avg(salary)
+/* 154543 employees with salaries > avg(salary) */
+
+
+-- find overall avg(salary) and round it
 SELECT ROUND(avg(salary),2)
 FROM salaries;
 
@@ -260,7 +256,7 @@ SELECT max(s.salary)
 FROM salaries AS s
 WHERE s.to_date > NOW();
 
--- find all current salaries
+-- find all current salaries/ total current employees
 SELECT *
 FROM salaries AS s
 WHERE s.to_date > NOW();
