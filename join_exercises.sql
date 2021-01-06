@@ -257,6 +257,86 @@ AND s.to_date > NOW();
 
 #ORDER BY ewd.dept_name, s.salary DESC;
 
+-- -- DAY TWO ATTEMPTS -- -- 
+
+-- gather all necessary tables
+SELECT *
+FROM employees AS e
+	JOIN salaries AS s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > NOW()
+	JOIN dept_emp AS de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > NOW()
+	JOIN departments AS d
+		ON d.dept_no = de.dept_no;
+
+-- create a list of all max(salaries) separated by dept_name
+SELECT max(salary)
+FROM employees AS e
+	JOIN salaries AS s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > NOW()
+	JOIN dept_emp AS de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > NOW()
+	JOIN departments AS d
+		ON d.dept_no = de.dept_no
+GROUP BY dept_name;
+
+-- combine
+SELECT *
+FROM employees AS e
+	JOIN salaries AS s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > NOW()
+	JOIN dept_emp AS de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > NOW()
+	JOIN departments AS d
+		ON d.dept_no = de.dept_no
+WHERE salary IN (
+				SELECT max(salary)
+				FROM employees AS e
+					JOIN salaries AS s
+						ON s.emp_no = e.emp_no
+							AND s.to_date > NOW()
+					JOIN dept_emp AS de
+						ON de.emp_no = e.emp_no
+							AND de.to_date > NOW()
+					JOIN departments AS d
+						ON d.dept_no = de.dept_no
+				GROUP BY dept_name				
+						);
+						
+-- clean up columns AND ORDER
+SELECT e.emp_no, first_name, last_name, dept_name, salary
+FROM employees AS e
+	JOIN salaries AS s
+		ON s.emp_no = e.emp_no
+			AND s.to_date > NOW()
+	JOIN dept_emp AS de
+		ON de.emp_no = e.emp_no
+			AND de.to_date > NOW()
+	JOIN departments AS d
+		ON d.dept_no = de.dept_no
+WHERE salary IN (
+				SELECT max(salary)
+				FROM employees AS e
+					JOIN salaries AS s
+						ON s.emp_no = e.emp_no
+							AND s.to_date > NOW()
+					JOIN dept_emp AS de
+						ON de.emp_no = e.emp_no
+							AND de.to_date > NOW()
+					JOIN departments AS d
+						ON d.dept_no = de.dept_no
+				GROUP BY dept_name				
+						)
+ORDER BY salary DESC;
+
+						
+
 
 
 
