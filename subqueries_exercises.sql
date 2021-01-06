@@ -213,12 +213,152 @@ FROM salaries;
 SELECT *
 FROM employees AS e
 JOIN salaries AS s
-	ON s.emp_no = e.emp_no;
+	ON s.emp_no = e.emp_no
+WHERE s.to_date > NOW();
 
+-- get just names
+SELECT CONCAT(first_name, ' ', last_name) AS 'Employee Name'
+FROM employees AS e
+JOIN salaries AS s
+	ON s.emp_no = e.emp_no
+WHERE s.to_date > NOW();
 
+-- put in subquery
+SELECT CONCAT(first_name, ' ', last_name) AS 'Employee Name'
+FROM employees AS e
+JOIN salaries AS s
+	ON s.emp_no = e.emp_no
+WHERE s.salary > (
+				SELECT ROUND(avg(salary),2)
+				FROM salaries
+						)
+AND s.to_date > NOW();
 
+-- clean up
+SELECT CONCAT(first_name, ' ', last_name) AS 'Employee Name', s.salary AS 'Current Salary'
+FROM employees AS e
+JOIN salaries AS s
+	ON s.emp_no = e.emp_no
+WHERE s.salary > (
+				SELECT ROUND(avg(salary),2)
+				FROM salaries
+						)
+AND s.to_date > NOW()
+ORDER BY s.salary;
 
 -- 6. How many current salaries are within 1 standard deviation of the current highest salary? (Hint: you can use a built in function to calculate the standard deviation.) What percentage of all salaries is this?
+
+/*83 current employees' salaries are within 1 std dev from the max(salary) 
+(83/240124)*(100) = .0346% */
+
+-- find the max(salary)
+SELECT max(s.salary)
+FROM salaries AS s;
+
+-- find the current max(salary)
+SELECT max(s.salary)
+FROM salaries AS s
+WHERE s.to_date > NOW();
+
+-- find all current salaries
+SELECT *
+FROM salaries AS s
+WHERE s.to_date > NOW();
+
+-- count
+SELECT COUNT(*)
+FROM salaries AS s
+WHERE s.to_date > NOW();
+
+-- stddev of salarY
+SELECT ROUND(stddev(s.salary), 2)
+FROM salaries AS s
+WHERE s.to_date > NOW();
+
+-- find the emps within one std dev away from the max salary: put them all together
+SELECT *
+FROM salaries AS s
+WHERE s.salary > (
+				(SELECT max(s.salary)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+				-
+				(SELECT ROUND(stddev(s.salary), 2)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+						) 
+AND s.to_date > NOW();
+
+-- count
+SELECT COUNT(*)
+FROM salaries AS s
+WHERE s.salary > (
+				(SELECT max(s.salary)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+				-
+				(SELECT ROUND(stddev(s.salary), 2)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+						) 
+AND s.to_date > NOW();
+
+-- calculate percentage
+(()/())*(100);
+
+SELECT
+(
+	(SELECT COUNT(*)
+	FROM salaries AS s
+	WHERE s.salary > (
+				(SELECT max(s.salary)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+				-
+				(SELECT ROUND(stddev(s.salary), 2)
+				FROM salaries AS s
+				WHERE s.to_date > NOW())
+						) 
+	AND s.to_date > NOW())
+/
+	(SELECT COUNT(*)
+	FROM salaries AS s
+	WHERE s.to_date > NOW())
+)*(100);
+
+
+-- -- liam's code dissected
+select
+ (Select count(salary)
+ from salaries
+ where salary > (
+        Select 
+        max(salary) - STDDEV(salary)
+        from salaries
+        Where to_date > curdate())
+ AND to_date > curdate())
+ /
+ (select
+ count(salary)
+ from salaries
+ Where to_date > curdate())
+ *100;
+
+Select *
+ from salaries
+ where salary > (
+        Select 
+        max(salary) - STDDEV(salary)
+        from salaries
+        Where to_date > curdate())
+ AND to_date > curdate()
+ ORDER BY emp_no;
+
+
+select
+ count(salary)
+ from salaries
+ Where to_date > curdate();
 
 /*BONUS*/
 
