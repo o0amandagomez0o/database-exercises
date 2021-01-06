@@ -364,6 +364,187 @@ select
 
 -- 1. Find all the department names that currently have female managers.
 
+-- filter only females from employees table
+SELECT emp_no
+FROM employees AS e
+WHERE gender = 'F';
+
+-- create list of current managers
+SELECT *
+FROM dept_manager
+WHERE to_date > NOW();
+
+-- combine to find the current female managers
+SELECT *
+FROM dept_manager AS dm
+JOIN employees AS e
+	ON e.emp_no = dm.emp_no
+WHERE to_date > NOW()
+AND gender = 'F';
+
+-- combine in the dept_names
+SELECT *
+FROM dept_manager AS dm
+JOIN employees AS e
+	ON e.emp_no = dm.emp_no
+JOIN departments AS d 
+	ON d.dept_no = dm.dept_no 
+WHERE to_date > NOW()
+AND gender = 'F';
+
+-- rearrange to incl a subquery
+SELECT *
+FROM dept_manager AS dm
+JOIN departments AS d 
+	ON d.dept_no = dm.dept_no
+WHERE  dm.emp_no IN (
+				SELECT dm.emp_no
+				FROM dept_manager AS dm
+				JOIN employees AS e
+					ON e.emp_no = dm.emp_no
+				WHERE to_date > NOW()
+				AND gender = 'F'
+							);
+
+-- clean up columns
+SELECT dept_name
+FROM dept_manager AS dm
+JOIN departments AS d 
+	ON d.dept_no = dm.dept_no
+WHERE  dm.emp_no IN (
+				SELECT dm.emp_no
+				FROM dept_manager AS dm
+				JOIN employees AS e
+					ON e.emp_no = dm.emp_no
+				WHERE to_date > NOW()
+				AND gender = 'F'
+							);
+
+
 -- 2. Find the first and last name of the employee with the highest salary.
 
+-- Highest salary
+SELECT *
+FROM salaries AS s
+JOIN employees AS e
+	ON e.emp_no = s.emp_no
+WHERE s.to_date > curdate()
+ORDER BY s.salary DESC;
+
+-- Highest salary name
+SELECT e.first_name, e.last_name
+
+FROM salaries AS s
+JOIN employees AS e
+	ON e.emp_no = s.emp_no
+WHERE s.to_date > curdate()
+ORDER BY s.salary DESC;
+
+-- Clean up column
+SELECT CONCAT(e.first_name, ' ', e.last_name) AS 'Employee with the Highest Salary'
+
+FROM salaries AS s
+JOIN employees AS e
+	ON e.emp_no = s.emp_no
+WHERE s.to_date > curdate()
+ORDER BY s.salary DESC
+LIMIT 1;
+
+
 -- 3. Find the department name that the employee with the highest salary works in.
+
+
+/*
+SELECT *
+FROM salaries AS s
+JOIN employees AS e
+	ON e.emp_no = s.emp_no
+WHERE s.to_date > curdate()
+ORDER BY s.salary DESC;
+
+--
+SELECT *
+FROM salaries AS s
+JOIN employees AS e
+	ON e.emp_no = s.emp_no
+
+WHERE e.emp_no IN (
+			SELECT de.emp_no
+			FROM dept_emp AS de
+				JOIN departments AS d
+					ON de.dept_no = de.dept_no
+						)
+AND s.to_date > curdate()
+ORDER BY s.salary DESC;
+
+
+SELECT *
+FROM dept_emp AS de
+JOIN departments AS d
+	ON de.dept_no = de.dept_no
+WHERE de.emp_no IN (
+			SELECT s.emp_no
+			FROM salaries AS s
+			JOIN employees AS e
+				ON e.emp_no = s.emp_no
+			WHERE s.to_date > curdate()
+					)
+AND de.to_date > NOW();
+*/
+-- Create a lg join with all necessary tables
+SELECT *
+FROM employees AS e
+JOIN salaries AS s
+	ON e.emp_no = s.emp_no
+		AND s.to_date > NOW()
+JOIN dept_emp AS de
+	ON de.emp_no = s.emp_no
+JOIN departments AS d
+	ON d.dept_no = de.dept_no
+		AND de.to_date > NOW();
+
+-- filter necessary columns
+SELECT e.first_name, e.last_name, s.emp_no, s.salary, d.dept_name
+FROM employees AS e
+JOIN salaries AS s
+	ON e.emp_no = s.emp_no
+		AND s.to_date > NOW()
+JOIN dept_emp AS de
+	ON de.emp_no = s.emp_no
+JOIN departments AS d
+	ON d.dept_no = de.dept_no
+		AND de.to_date > NOW();
+
+-- add max(salary) subquery
+SELECT e.first_name, e.last_name, s.emp_no, s.salary, d.dept_name
+FROM employees AS e
+JOIN salaries AS s
+	ON e.emp_no = s.emp_no
+		AND s.to_date > NOW()
+JOIN dept_emp AS de
+	ON de.emp_no = s.emp_no
+JOIN departments AS d
+	ON d.dept_no = de.dept_no
+		AND de.to_date > NOW()
+WHERE salary IN (
+				SELECT max(s.salary)
+				FROM salaries AS s
+						);
+
+-- clean up SELECT to provide answer
+SELECT d.dept_name AS 'Dept with the highest paid employee'
+FROM employees AS e
+JOIN salaries AS s
+	ON e.emp_no = s.emp_no
+		AND s.to_date > NOW()
+JOIN dept_emp AS de
+	ON de.emp_no = s.emp_no
+JOIN departments AS d
+	ON d.dept_no = de.dept_no
+		AND de.to_date > NOW()
+WHERE salary IN (
+				SELECT max(s.salary)
+				FROM salaries AS s
+						);
+
+
