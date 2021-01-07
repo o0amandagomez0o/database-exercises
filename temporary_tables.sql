@@ -109,7 +109,7 @@ SELECT *
 FROM temp_pymt;
 
 
--- Find out how the current average pay in each department compares to the overall, historical average pay. In order to make the comparison easier, you should use the Z-score for salaries. In terms of salary, what is the best department right now to work for? The worst?
+-- 3. Find out how the current average pay in each department compares to the overall, historical average pay. In order to make the comparison easier, you should use the Z-score for salaries. In terms of salary, what is the best department right now to work for? The worst?
 
 -- create subquery
 SELECT *
@@ -302,12 +302,3 @@ FROM h_tempsewd
 GROUP BY dept_name
 ORDER BY avg(salary) DESC;
 */
-
-
-
-
-
-
-
-
-
