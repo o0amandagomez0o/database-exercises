@@ -117,8 +117,8 @@ FROM employees.salaries
 	JOIN employees.employees_with_departments 
 		USING(emp_no);
 
--- create temp table
-CREATE TEMPORARY TABLE tempsewd AS (
+-- create temp table for current pay
+CREATE TEMPORARY TABLE c_tempsewd AS (
 										SELECT *
 										FROM employees.salaries
 											JOIN employees.employees_with_departments 
@@ -126,16 +126,58 @@ CREATE TEMPORARY TABLE tempsewd AS (
 										WHERE employees.salaries.to_date > NOW()
 											);
 
--- view newly created table
-SELECT *
-FROM tempsewd;
+-- create temp table for historical pay
+CREATE TEMPORARY TABLE h_tempsewd AS (
+										SELECT *
+										FROM employees.salaries
+											JOIN employees.employees_with_departments 
+												USING(emp_no)
+											);
+											
+-- create temp table for z-score
+CREATE TEMPORARY TABLE z_tempsewd AS (
+										SELECT easley_1261.c_tempsewd.dept_name, 'Current avg_pay', 'Historical avg_pay'
+										FROM easley_1261.h_tempsewd
+											JOIN easley_1261.c_tempsewd
+												ON easley_1261.h_tempsewd.dept_name = easley_1261.c_tempsewd.dept_name
+											);											
+											
 
+-- view newly created tables
+SELECT *
+FROM h_tempsewd;
+
+SELECT *
+FROM c_tempsewd;
+
+SELECT *
+FROM z_tempsewd;
+
+
+
+-- adj table to produce only the 9 depts
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay'
+FROM h_tempsewd
+GROUP BY dept_name
+ORDER BY avg(salary) DESC;
+
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Current avg_pay'
+FROM c_tempsewd
+GROUP BY dept_name
+ORDER BY avg(salary) DESC;
+/*
+SELECT ROUND(salary - avg(salary)) / stddev(salary)) AS 'z-score'
+FROM z_tempsewd;
+*/
+
+
+/*
 -- adj table to produce only the 9 depts
 SELECT dept_name, ROUND(avg(salary), 2) AS 'Current avg_pay', ROUND((sum(salary) - avg(salary)) / stddev(salary)) AS 'z-score'
 FROM tempsewd
 GROUP BY dept_name
 ORDER BY avg(salary) DESC;
-
+*/
 
 
 
