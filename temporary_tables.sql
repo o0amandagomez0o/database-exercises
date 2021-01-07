@@ -136,10 +136,11 @@ CREATE TEMPORARY TABLE h_tempsewd AS (
 											
 -- create temp table for z-score
 CREATE TEMPORARY TABLE z_tempsewd AS (
-										SELECT easley_1261.c_tempsewd.dept_name, 'Current avg_pay', 'Historical avg_pay'
-										FROM easley_1261.h_tempsewd
-											JOIN easley_1261.c_tempsewd
-												ON easley_1261.h_tempsewd.dept_name = easley_1261.c_tempsewd.dept_name
+										SELECT dept_name, ROUND(avg(salary), 2) AS havg_pay
+										FROM employees.salaries
+											JOIN employees.employees_with_departments 
+												USING(emp_no)
+										GROUP BY dept_name
 											);											
 											
 
@@ -154,18 +155,18 @@ SELECT *
 FROM z_tempsewd;
 
 
-
+/*
 -- adj table to produce only the 9 depts
-SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay'
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay', stddev(salary)
 FROM h_tempsewd
 GROUP BY dept_name
 ORDER BY avg(salary) DESC;
 
-SELECT dept_name, ROUND(avg(salary), 2) AS 'Current avg_pay'
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Current avg_pay', stddev(salary)
 FROM c_tempsewd
 GROUP BY dept_name
 ORDER BY avg(salary) DESC;
-/*
+
 SELECT ROUND(salary - avg(salary)) / stddev(salary)) AS 'z-score'
 FROM z_tempsewd;
 */
@@ -177,7 +178,135 @@ SELECT dept_name, ROUND(avg(salary), 2) AS 'Current avg_pay', ROUND((sum(salary)
 FROM tempsewd
 GROUP BY dept_name
 ORDER BY avg(salary) DESC;
+
+
+-- zscore formula
+(() - ()) / stddev();
+
+-- copy/paste
+(
+	(
+	SELECT ROUND(avg(salary), 2) AS 'Current avg_pay'
+	FROM c_tempsewd
+	GROUP BY dept_name
+	ORDER BY avg(salary) DESC
+	) 
+- 
+	(
+	SELECT ROUND(avg(salary), 2) AS 'Historical avg_pay'
+	FROM h_tempsewd
+	)
+) 
+/ 
+	(
+	SELECT stddev(salary)
+	FROM h_tempsewd
+
+	);
+
+-- insert with SELECT: creates error: Can't reopen table: 'h_tempsewd'
+SELECT 
+(
+(
+	(
+	SELECT salary
+	FROM h_tempsewd
+	GROUP BY dept_name
+	ORDER BY avg(salary) DESC
+	) 
+- 
+	(
+	SELECT ROUND(avg(salary), 2)
+	FROM h_tempsewd
+	GROUP BY dept_name
+	ORDER BY avg(salary) DESC
+	)
+) 
+/ 
+	(
+	SELECT stddev(salary)
+	FROM h_tempsewd
+	GROUP BY dept_name
+	ORDER BY avg(salary) DESC
+	)
+);
 */
+
+
+
+
+-- find mu & sigma!!
+-- mu: 63805.40
+-- sigma: 16900.85
+SELECT ROUND(avg(salary), 2), ROUND(stddev(salary), 2)
+FROM easley_1261.h_tempsewd;
+
+
+-- view FULL temp tables to see what can be removed
+SELECT *
+FROM z_tempsewd;
+
+
+/*
+-- remove uneccessary columns
+ALTER TABLE z_tempsewd DROP COLUMN emp_no,
+						DROP COLUMN from_date,
+						DROP COLUMN first_name, 
+						DROP COLUMN last_name,
+						DROP COLUMN dept_no,
+						DROP COLUMN to_date;
+*/
+
+
+-- add stddev column
+ALTER TABLE z_tempsewd ADD totalstddev DECIMAL(15, 2);
+
+UPDATE z_tempsewd SET totalstddev = (
+									SELECT ROUND(stddev(salary), 2)
+									FROM easley_1261.h_tempsewd
+									);
+
+-- add hist avg pay column
+ALTER TABLE z_tempsewd ADD totavgpay DECIMAL(15, 2);
+
+UPDATE z_tempsewd SET totavgpay = (
+									SELECT ROUND(avg(salary), 2)
+									FROM easley_1261.h_tempsewd
+									);
+
+-- add zscore column
+ALTER TABLE z_tempsewd ADD zscore DECIMAL(15, 2);
+
+UPDATE z_tempsewd SET zscore = (havg_pay - totavgpay) / totalstddev;
+
+
+
+/*
+-- group by depts
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay'
+FROM z_tempsewd
+GROUP BY dept_name
+ORDER BY avg(salary) DESC;
+
+-- 
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay', ((ROUND(avg(salary), 2)) - totavgpay) / totalstddev
+FROM z_tempsewd
+GROUP BY dept_name
+ORDER BY avg(salary) DESC;
+
+
+
+-- Let's try the HISTORICAL data
+SELECT dept_name, ROUND(avg(salary), 2) AS 'Historical avg_pay', stddev(salary)
+FROM h_tempsewd
+GROUP BY dept_name
+ORDER BY avg(salary) DESC;
+*/
+
+
+
+
+
 
 
 
