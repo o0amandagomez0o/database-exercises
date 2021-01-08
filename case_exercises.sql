@@ -136,6 +136,11 @@ ORDER BY last_name, first_name;
 
 -- 3. How many employees (current or previous) were born in each decade?
 
+/*
+182886	atomic_boomer
+117138	flower_child
+*/
+
 -- view table
 SELECT *
 FROM employees;
@@ -161,6 +166,94 @@ FROM employees
 ORDER BY birth_date, last_name, first_name;
 
 
+use easley_1261;
+
+create temporary table tempdecade AS (
+SELECT 
+	CONCAT(first_name, ' ', last_name) AS emp_name,
+	birth_date,
+	CASE 
+		WHEN birth_date LIKE '195%'
+			THEN 'Atomic Boomer'
+		WHEN birth_date LIKE '196%'
+			THEN 'Flower Child'
+		ELSE birth_date
+		END AS birth_decade
+FROM employees.employees
+ORDER BY birth_date, last_name, first_name
+											);
+
+select *
+from tempdecade;
+
+
+
+
+-- count decades
+SELECT count(birth_date)
+FROM employees
+WHERE birth_date LIKE '195%'
+;
+
+-- count decades
+SELECT count(birth_date)
+FROM employees
+WHERE birth_date LIKE '196%'
+;
+
+
+/*
+-- attempt at counting with case subquery
+SELECT COUNT(*)
+FROM employees
+WHERE birth_date IN (
+		SELECT 
+			CASE 
+				WHEN birth_date LIKE '195%'
+					THEN Atomic_Boomer
+				WHEN birth_date LIKE '196%'
+					THEN Flower_Child
+				ELSE birth_date
+				END AS birth_decade
+		FROM employees
+						)
+GROUP BY birth_date;
+*/
+
+
+-- use of case dto produce final counts
+SELECT 
+	COUNT(emp_no),
+	CASE 
+		WHEN birth_date LIKE '195%'
+			THEN 'atomic_boomer'
+		WHEN birth_date LIKE '196%'
+			THEN 'flower_child'
+		ELSE birth_date
+		END AS birth_decade
+FROM employees
+GROUP BY birth_decade;
+
+
+
+/*
+-- convert to temp table
+use easley_1261;
+
+CREATE TEMPORARY TABLE emp_decade AS (
+						SELECT 
+							CONCAT(first_name, ' ', last_name) AS emp_name,
+							birth_date,
+							CASE 
+								WHEN birth_date LIKE '195%'
+									THEN 'Atomic Boomer'
+								WHEN birth_date LIKE '196%'
+									THEN 'Flower Child'
+								ELSE birth_date
+								END AS birth_decade
+						FROM employees.employees
+											);
+*/
 
 
 
@@ -168,12 +261,72 @@ ORDER BY birth_date, last_name, first_name;
 
 /*BONUS
 
-What is the current average salary for each of the following department groups: R&D, Sales & Marketing, Prod & QM, Finance & HR, Customer Service?
+What is the current average salary for each of the following department groups: 
+R&D, 
+Sales & Marketing, 
+Prod & QM, 
+Finance & HR, 
+Customer Service?
 */
 
+use employees;
+
+-- use a case to create a table with a column grouping as requested
+SELECT emp_no, salary, dept_name,
+	CASE
+		WHEN dept_name IN ('Research', 'Development')
+			THEN 'R&D'
+		WHEN dept_name IN ('sales', 'marketing') 
+			THEN 'Sales & Marketing' 
+		WHEN dept_name IN ('Production', 'Quality Management') 
+			THEN 'Prod & QM'
+		WHEN dept_name IN ('Finance', 'Human Resources') 
+			THEN 'Finance & HR' 
+            ELSE 'Customer Service'
+            END AS dept_group
+FROM employees.salaries
+	JOIN employees_with_departments
+		USING(emp_no);
+#GROUP BY dept_group;
+
+-- filter the to get current salaries
+SELECT ROUND(avg(salary), 2),
+	CASE
+		WHEN dept_name IN ('Research', 'Development')
+			THEN 'R&D'
+		WHEN dept_name IN ('sales', 'marketing') 
+			THEN 'Sales & Marketing' 
+		WHEN dept_name IN ('Production', 'Quality Management') 
+			THEN 'Prod & QM'
+		WHEN dept_name IN ('Finance', 'Human Resources') 
+			THEN 'Finance & HR' 
+            ELSE 'Customer Service'
+            END AS dept_group
+FROM employees.salaries
+	JOIN employees_with_departments
+		USING(emp_no)
+WHERE employees.salaries.to_date > NOW()
+GROUP BY dept_group;
 
 
-
+-- clean up table
+SELECT CONCAT('$', ' ', ROUND(avg(salary), 2)) AS current_avg_salary,
+	CASE
+		WHEN dept_name IN ('Research', 'Development')
+			THEN 'R&D'
+		WHEN dept_name IN ('sales', 'marketing') 
+			THEN 'Sales & Marketing' 
+		WHEN dept_name IN ('Production', 'Quality Management') 
+			THEN 'Prod & QM'
+		WHEN dept_name IN ('Finance', 'Human Resources') 
+			THEN 'Finance & HR' 
+            ELSE 'Customer Service'
+            END AS dept_group
+FROM employees.salaries
+	JOIN employees_with_departments
+		USING(emp_no)
+WHERE employees.salaries.to_date > NOW()
+GROUP BY dept_group;
 
 
 
