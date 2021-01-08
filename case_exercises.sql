@@ -41,8 +41,9 @@ SELECT
 FROM dept_emp AS de
 	JOIN employees AS e
 		USING (emp_no);
+
 		
--- insert CASE
+-- insert CASE: 331603 rows is more than actual hired employees b'c employees changed depts and created duplicates
 SELECT 
 	emp_no, 
 	dept_no, 
@@ -52,6 +53,37 @@ SELECT
 FROM dept_emp AS de
 	JOIN employees AS e
 		USING (emp_no);		
+
+/*-- insert CASE: 331603 rows is more than actual hired employees b'c employees changed depts and created duplicates
+SELECT 
+	emp_no, 
+	dept_no, 
+	hire_date, 
+	to_date,
+	IF(to_date > NOW(), true, false) AS is_current_employee 
+FROM dept_emp AS de
+	JOIN (
+		SELECT 
+			emp_no, 
+			MAX(to_date) AS max_date
+		FROM dept_emp
+		GROUP BY emp_no	
+			)
+	FROM dept_emp
+	GROUP BY emp_no AS last_dept
+	USING (emp_no)
+		WHERE de.to_date = last_dept.to_date
+	JOIN employees AS e 
+		USING (emp_no);
+*/
+
+-- returns correct # of historical employees
+SELECT 
+	emp_no, 
+	MAX(to_date) AS max_date
+FROM dept_emp
+GROUP BY emp_no;
+
 
 
 
@@ -165,10 +197,10 @@ SELECT
 FROM employees
 ORDER BY birth_date, last_name, first_name;
 
-
+/*
 use easley_1261;
 
-create temporary table tempdecade AS (
+-- create temporary table tempdecade AS (
 SELECT 
 	CONCAT(first_name, ' ', last_name) AS emp_name,
 	birth_date,
@@ -185,7 +217,7 @@ ORDER BY birth_date, last_name, first_name
 
 select *
 from tempdecade;
-
+*/
 
 
 
