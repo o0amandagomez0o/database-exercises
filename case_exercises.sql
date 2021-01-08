@@ -124,7 +124,7 @@ SELECT
 		WHEN last_name REGEXP'^(I|J|K|L|M|N|O|P|Q)' 
 				THEN 'I-Q'
 				
-		WHEN last_name REGEXP'^(R|S|T|U|V|W|X|Y|Z)'
+		WHEN last_name > 'Q'
 				THEN 'R-Z'
 				
 		ELSE last_name
