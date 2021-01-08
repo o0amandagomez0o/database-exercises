@@ -328,6 +328,24 @@ FROM employees.salaries
 WHERE employees.salaries.to_date > NOW()
 GROUP BY dept_group;
 
-
+-- rearrange table to look like example
+SELECT 
+	CASE
+		WHEN dept_name IN ('Research', 'Development')
+			THEN 'R&D'
+		WHEN dept_name IN ('sales', 'marketing') 
+			THEN 'Sales & Marketing' 
+		WHEN dept_name IN ('Production', 'Quality Management') 
+			THEN 'Prod & QM'
+		WHEN dept_name IN ('Finance', 'Human Resources') 
+			THEN 'Finance & HR' 
+            ELSE 'Customer Service'
+            END AS dept_group,
+	CONCAT('$', ' ', ROUND(avg(salary), 2)) AS current_avg_salary
+FROM employees.salaries
+	JOIN employees_with_departments
+		USING(emp_no)
+WHERE employees.salaries.to_date > NOW()
+GROUP BY dept_group;
 
 
