@@ -531,28 +531,106 @@ WHERE Code IN (
 
 
 /*
+
 Sakila Database
+
 */
 
 -- 1. Display the first and last names in all lowercase of all the actors.
+SELECT *
+FROM actor;
 
+-- filter columns
+SELECT LOWER(first_name), LOWER(last_name)
+FROM actor;
 
--- 2.You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe." What is one query would you could use to obtain this information?
+-- Combine into one column
+-- filter columns
+SELECT CONCAT(LOWER(first_name), ' ', LOWER(last_name)) AS Actor_Name
+FROM actor;
+
+/*
+--  2.You need to find the 
+		ID number, 
+		first name, and 
+		last name of an actor, 
+	of whom you know only the first name, "Joe." 
+What is one query would you could use to obtain this information? */
+SELECT * 
+FROM actor;
+
+-- filter columns
+SELECT actor_id, first_name, last_name
+FROM actor;
+
+-- filter for Joe
+SELECT actor_id, first_name, last_name
+FROM actor
+WHERE first_name = 'Joe';
 
 
 -- 3.Find all actors whose last name contain the letters "gen":
 
+SELECT CONCAT(first_name, ' ', last_name) AS Actor_Name
+FROM actor
+WHERE last_name LIKE '%gen%';
 
 -- 4.Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
+SELECT CONCAT(first_name, ' ', last_name) AS Actor_Name
+FROM actor
+WHERE last_name LIKE '%li%';
 
+-- addr the order request
+SELECT CONCAT(first_name, ' ', last_name) AS Actor_Name
+FROM actor
+WHERE last_name LIKE '%li%'
+ORDER BY last_name, first_name;
 
 -- 5.Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China:
+SELECT *
+FROM country;
+
+-- filter columns
+SELECT country_id, country
+FROM country;
+
+-- filter rows
+SELECT country_id, country
+FROM country
+WHERE country IN ('Afghanistan', 'Bangladesh', 'China');
 
 
 -- 6.List the last names of all the actors, as well as how many actors have that last name.
+SELECT *
+FROM actor;
+
+-- filter columns
+SELECT last_name
+FROM actor;
+
+-- add count, group by necessary
+SELECT last_name, count(last_name)
+FROM actor
+GROUP BY last_name;
 
 
 -- 7.List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors
+SELECT last_name, count(last_name)
+FROM actor
+GROUP BY last_name;
+
+-- CLEAN
+SELECT last_name, count(last_name) AS No_Actors
+FROM actor
+GROUP BY last_name
+ORDER BY No_Actors DESC;
+
+-- COMBINE AS A SUBQUERY
+SELECT last_name, count(last_name) AS No_Actors
+FROM actor
+GROUP BY last_name
+HAVING No_Actors > 1
+ORDER BY No_Actors DESC;
 
 
 -- 8.You cannot locate the schema of the address table. Which query would you use to re-create it?
