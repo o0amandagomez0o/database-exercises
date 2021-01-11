@@ -316,9 +316,278 @@ FROM country
 GROUP BY Region
 ORDER BY sum(Population) DESC;
 
+-- 4. What is the population for each continent?
+SELECT Continent, sum(Population)
+FROM country
+GROUP BY continent
+ORDER BY sum(Population) DESC;
+
+-- 5. What is the average life expectancy globally?
+SELECT *
+FROM country; 
+
+-- life exp
+SELECT LifeExpectancy
+FROM country; 
+
+-- avg(life exp)
+SELECT avg(LifeExpectancy)
+FROM country; 
+
+-- 6. What is the average life expectancy for each region, each continent? Sort the results from shortest to longest
+
+
+-- avg life expectancy for each continent
+SELECT Continent, avg(LifeExpectancy) AS life_expectancy
+FROM country
+GROUP BY Continent
+ORDER BY life_expectancy;
 
 
 
+-- avg life expectancy for each region
+SELECT Region, LifeExpectancy
+FROM country;
+
+-- AVG
+SELECT Region, avg(LifeExpectancy)
+FROM country
+GROUP BY R;
+
+-- AVG, clean up
+SELECT Region, avg(LifeExpectancy) AS life_expectancy
+FROM country
+GROUP BY Region
+ORDER BY life_expectancy;
+
+
+/*
+Bonus
+*/
+
+-- 7. Find all the countries whose local name is different from the official name
+SELECT *
+FROM country; 
+
+-- filter column
+SELECT name, LocalName
+FROM country; 
+
+-- where
+SELECT name, LocalName
+FROM country
+WHERE name <> LocalName;
+
+-- 8. How many countries have a life expectancy less than OSAKA?
+SELECT Name, LifeExpectancy
+FROM country;
+
+-- join 2 tables
+SELECT *
+FROM country
+	JOIN city
+		ON city.CountryCode = country.code;
+		
+-- filter columns
+SELECT country.Name, LifeExpectancy
+FROM country
+	JOIN city
+		ON city.CountryCode = country.code;		
+
+-- create subquery
+SELECT LifeExpectancy
+FROM country 
+WHERE Code IN (
+				SELECT CountryCode
+				FROM city
+				WHERE ID = 1534);	
+						
+-- insert subquery
+SELECT country.Name, country.Continent, LifeExpectancy
+FROM country
+	JOIN city
+		ON city.CountryCode = country.code
+WHERE LifeExpectancy > (
+						SELECT LifeExpectancy
+						FROM country 
+						WHERE Code IN (
+									SELECT CountryCode
+									FROM city
+									WHERE ID = 1534
+										)
+						);	
+						
+
+-- 9. What state is OSAKA located in?
+SELECT *
+FROM city;
+
+-- specify city ID
+SELECT *
+FROM city
+WHERE ID = 1534;	
+
+-- filter columns
+SELECT District
+FROM city
+WHERE ID = 1534;	
+
+
+
+-- 10. What region of the world is OSAKA located in?
+SELECT *
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+);	
+
+-- FILTER COLUMNS
+SELECT Region
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+);	
+
+-- group by
+SELECT Region
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+)
+GROUP BY Region;	
+
+
+-- 11. What country (use the human readable name) OSAKA located in?
+-- view table
+SELECT *
+FROM country;
+
+-- view table
+SELECT *
+FROM city;
+
+-- merge 2 tables
+SELECT *
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code;
+		
+-- filter columns
+SELECT country.Name
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code;	
+		
+-- insert subquery
+SELECT country.Name
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+);	
+
+-- group by
+SELECT country.Name
+FROM country
+	JOIN city 
+		ON city.CountryCode = country.code
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+)
+GROUP BY Name;					
+
+
+-- 12. What is the life expectancy in OSAKA? 
+-- 80.7
+SELECT *
+FROM city
+WHERE ID = 1534;
+
+-- insert subquery
+SELECT LifeExpectancy
+FROM country 
+WHERE Code IN (
+			SELECT CountryCode
+			FROM city
+			WHERE ID = 1534
+);
+
+
+/*
+Sakila Database
+*/
+
+-- 1. Display the first and last names in all lowercase of all the actors.
+
+
+-- 2.You need to find the ID number, first name, and last name of an actor, of whom you know only the first name, "Joe." What is one query would you could use to obtain this information?
+
+
+-- 3.Find all actors whose last name contain the letters "gen":
+
+
+-- 4.Find all actors whose last names contain the letters "li". This time, order the rows by last name and first name, in that order.
+
+
+-- 5.Using IN, display the country_id and country columns for the following countries: Afghanistan, Bangladesh, and China:
+
+
+-- 6.List the last names of all the actors, as well as how many actors have that last name.
+
+
+-- 7.List last names of actors and the number of actors who have that last name, but only for names that are shared by at least two actors
+
+
+-- 8.You cannot locate the schema of the address table. Which query would you use to re-create it?
+
+-- 9. Use JOIN to display the first and last names, as well as the address, of each staff member.
+
+
+-- 10. Use JOIN to display the total amount rung up by each staff member in August of 2005.
+
+
+-- 11.List each film and the number of actors who are listed for that film.
+
+
+-- 12.How many copies of the film Hunchback Impossible exist in the inventory system?
+
+
+-- 13.The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
+
+
+-- 14.Use subqueries to display all actors who appear in the film Alone Trip.
+
+
+-- 15.You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers.
+
+
+-- 16.Sales have been lagging among young families, and you wish to target all family movies for a promotion. Identify all movies categorized as famiy films.
+
+
+-- 17.Write a query to display how much business, in dollars, each store brought in.
+
+
+-- 18.Write a query to display for each store its store ID, city, and country.
+
+
+-- 19.List the top five genres in gross revenue in descending order. (Hint: you may need to use the following tables: category, film_category, inventory, payment, and rental.)
 
 
 
