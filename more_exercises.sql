@@ -634,11 +634,106 @@ ORDER BY No_Actors DESC;
 
 
 -- 8.You cannot locate the schema of the address table. Which query would you use to re-create it?
+SELECT *
+FROM address;
+
+-- Unknown storage engine 'sakila'
+ALTER TABLE address ENGINE = sakila;
+
+-- 
+SELECT 
+  `address_SCHEMA`,                          -- Foreign key schema
+  `address_NAME`,                            -- Foreign key table
+  `COLUMN_NAME`,                           -- Foreign key column
+  `REFERENCED_TABLE_SCHEMA`,               -- Origin key schema
+  `REFERENCED_TABLE_NAME`,                 -- Origin key table
+  `REFERENCED_COLUMN_NAME`                 -- Origin key column
+FROM
+  `INFORMATION_SCHEMA`.`KEY_COLUMN_USAGE`  -- Will fail if user don't have privilege
+WHERE
+  `TABLE_SCHEMA` = SCHEMA()                -- Detect current schema in USE 
+  AND `REFERENCED_TABLE_NAME` IS NOT NULL; -- Only tables with foreign keys
+
+-- INSERT command denied to user 'easley_1261'@'104-190-255-174.lightspeed.snantx.sbcglobal.net' for table 'address'
+REPAIR TABLE address;
+
+
 
 -- 9. Use JOIN to display the first and last names, as well as the address, of each staff member.
+-- view table to join
+SELECT *
+FROM staff;
+
+-- view table to join
+SELECT *
+FROM address;
+
+-- join
+SELECT *
+FROM staff
+	JOIN address 
+		USING (address_id);
+		
+-- filter columns
+SELECT first_name, last_name, address
+FROM staff
+	JOIN address 
+		USING (address_id);		
+
+-- clean table
+SELECT CONCAT(first_name, ' ', last_name) AS Employee_Name, address
+FROM staff
+	JOIN address 
+		USING (address_id);	
 
 
 -- 10. Use JOIN to display the total amount rung up by each staff member in August of 2005.
+-- 
+SELECT *
+FROM sales_by_store;
+
+-- 
+SELECT *
+FROM staff;
+
+-- view table
+SELECT *
+FROM payment;
+
+-- filter dates
+SELECT *
+FROM payment
+WHERE payment_date LIKE '2005-08-%';
+
+-- filter dates
+SELECT *
+FROM payment
+	JOIN staff
+		USING (staff_id)
+WHERE payment_date LIKE '2005-08-%';
+
+-- filter columns
+SELECT CONCAT(first_name, " ", last_name) AS Emp_Name, amount
+FROM payment
+	JOIN staff
+		USING (staff_id)
+WHERE payment_date LIKE '2005-08-%';
+
+-- group by
+SELECT CONCAT(first_name, " ", last_name) AS Emp_Name, sum(amount)
+FROM payment
+	JOIN staff
+		USING (staff_id)
+WHERE payment_date LIKE '2005-08-%'
+GROUP BY Emp_Name;
+
+-- group by
+SELECT CONCAT(first_name, " ", last_name) AS Emp_Name, sum(amount) AS Total_Aug_Sales
+FROM payment
+	JOIN staff
+		USING (staff_id)
+WHERE payment_date LIKE '2005-08-%'
+GROUP BY Emp_Name;
 
 
 -- 11.List each film and the number of actors who are listed for that film.
