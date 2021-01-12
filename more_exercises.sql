@@ -658,6 +658,9 @@ WHERE
 REPAIR TABLE address;
 
 
+-- ANSWER!!!
+DESCRIBE sakila.address;
+
 
 -- 9. Use JOIN to display the first and last names, as well as the address, of each staff member.
 -- view table to join
@@ -735,11 +738,104 @@ FROM payment
 WHERE payment_date LIKE '2005-08-%'
 GROUP BY Emp_Name;
 
+-- clean columns
+SELECT CONCAT(first_name, " ", last_name) AS Emp_Name, CONCAT("$ ", sum(amount)) AS Total_Aug_Sales
+FROM payment
+	JOIN staff
+		USING (staff_id)
+WHERE payment_date LIKE '2005-08-%'
+GROUP BY Emp_Name
+
 
 -- 11.List each film and the number of actors who are listed for that film.
+-- view tables
+SELECT *
+FROM film_list;
+
+SELECT *
+FROM film_actor;
+
+SELECT *
+FROM actor;
+
+SELECT *
+FROM film;
+
+SELECT *
+FROM film_list;
+
+-- join
+SELECT *
+FROM film
+	JOIN film_actor
+		USING (film_id);
+		
+-- filter columns
+SELECT title, actor_id
+FROM film
+	JOIN film_actor
+		USING (film_id);
+
+-- filter columns
+SELECT title, COUNT(actor_id)
+FROM film
+	JOIN film_actor
+		USING (film_id)
+GROUP BY title;	
+
+-- clean columns
+SELECT title, COUNT(actor_id) AS Number_Actors
+FROM film
+	JOIN film_actor
+		USING (film_id)
+GROUP BY title;				
+
 
 
 -- 12.How many copies of the film Hunchback Impossible exist in the inventory system?
+-- view table
+SELECT *
+FROM inventory;
+
+SELECT *
+FROM film;
+
+-- VIEW * OF TITLE
+SELECT *
+FROM film
+WHERE title = 'HUNCHBACK IMPOSSIBLE';
+
+-- insert subquery
+SELECT *
+FROM inventory
+WHERE film_id IN (
+				SELECT film_id
+				FROM film
+				WHERE title = 'HUNCHBACK IMPOSSIBLE'
+					);
+
+-- count
+SELECT COUNT(film_id) AS CopiesOf_HunchbackImpossible
+FROM inventory
+WHERE film_id IN (
+				SELECT film_id
+				FROM film
+				WHERE title = 'HUNCHBACK IMPOSSIBLE'
+					);
+/*
+ex answer
+
+SELECT 
+	title, 
+	(
+		SELECT COUNT(*) 
+		FROM inventory
+		WHERE film.film_id = inventory.film_id
+	) AS 'Number of Copies'
+FROM film
+WHERE title = "Hunchback Impossible";
+*/
+
 
 
 -- 13.The music of Queen and Kris Kristofferson have seen an unlikely resurgence. As an unintended consequence, films starting with the letters K and Q have also soared in popularity. Use subqueries to display the titles of movies starting with the letters K and Q whose language is English.
